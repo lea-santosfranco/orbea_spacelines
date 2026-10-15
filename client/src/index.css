@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  /* Couleurs de la charte Horizon */
+  --color-abysse: #081226;
+  --color-stratosphere: #10204a;
+  --color-stratosphere-haute: #182c5e;
+  --color-trait: #24366b;
+  --color-contour: #6278b3;
+  --color-neige: #f2f4fa;
+  --color-brume: #a8b3d1;
+  --color-aube: #ff8a50;
+  --color-aube-survol: #ffa36f;
+  --color-ciel: #7db8ff;
+  --color-succes: #5fd3a0;
+  --color-vigilance: #ffc266;
+  --color-erreur: #ff6b7a;
+
+  /* Polices */
+  --font-display: "Syne", sans-serif;
+  --font-sans: "Manrope", sans-serif;
+
+  /* Arrondis */
+  --radius-champ: 8px;
+  --radius-carte: 16px;
+
+  /* Halo du bouton principal au survol */
+  --shadow-lueur-aube: 0 0 40px rgba(255, 138, 80, 0.35);
+}
+
+body {
+  background-color: var(--color-abysse);
+  color: var(--color-neige);
+  font-family: var(--font-sans);
+}
