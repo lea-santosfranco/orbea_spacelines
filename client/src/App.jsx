@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router/dom';
 import Layout from './components/layout/Layout.jsx';
 import AdminLayout from './components/layout/AdminLayout.jsx';
 import PlaceholderPage from './pages/PlaceholderPage.jsx';
+import HomePage from './pages/public/HomePage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -13,7 +14,7 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       // Pages publiques
-      { index: true, element: <PlaceholderPage title="Accueil" story="US 1" /> },
+      { index: true, element: <HomePage /> },
       { path: 'destinations', element: <PlaceholderPage title="Destinations" story="US 2" /> },
       { path: 'destinations/:slug', element: <PlaceholderPage title="Fiche voyage" story="US 6" /> },
       { path: 'boutique', element: <PlaceholderPage title="Boutique" story="US 3" /> },
