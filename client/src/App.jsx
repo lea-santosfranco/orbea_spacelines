@@ -1,62 +1,62 @@
-const buttonBase = `
-  h-12 rounded-full px-6 text-[15px] font-bold
-  motion-safe:transition
-  focus-visible:outline-2 focus-visible:outline-offset-2
-  focus-visible:outline-aube
-`;
+import { createBrowserRouter, Navigate } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
+import Layout from './components/layout/Layout.jsx';
+import AdminLayout from './components/layout/AdminLayout.jsx';
+import PlaceholderPage from './pages/PlaceholderPage.jsx';
+import NotFoundPage from './pages/NotFoundPage.jsx';
+import ErrorPage from './pages/ErrorPage.jsx';
 
-const buttonPrimary = `
-  ${buttonBase}
-  bg-aube text-abysse
-  hover:bg-aube-survol hover:shadow-lueur-aube
-`;
+// Les pages « en construction » seront remplacées au fil des user stories
+const router = createBrowserRouter([
+  {
+    element: <Layout />,
+    errorElement: <ErrorPage />,
+    children: [
+      // Pages publiques
+      { index: true, element: <PlaceholderPage title="Accueil" story="US 1" /> },
+      { path: 'destinations', element: <PlaceholderPage title="Destinations" story="US 2" /> },
+      { path: 'destinations/:slug', element: <PlaceholderPage title="Fiche voyage" story="US 6" /> },
+      { path: 'boutique', element: <PlaceholderPage title="Boutique" story="US 3" /> },
+      { path: 'boutique/:slug', element: <PlaceholderPage title="Fiche goodie" story="US 7" /> },
+      { path: 'panier', element: <PlaceholderPage title="Panier" story="US 8, US 9" /> },
+      { path: 'connexion', element: <PlaceholderPage title="Connexion" story="US 10, US 11" /> },
 
-const buttonSecondary = `
-  ${buttonBase}
-  border border-contour text-neige
-  hover:bg-stratosphere-haute
-`;
+      // Parcours de commande (client connecté)
+      { path: 'commande', element: <PlaceholderPage title="Récapitulatif de commande" story="US 13" /> },
+      { path: 'commande/confirmation', element: <PlaceholderPage title="Confirmation" story="US 14" /> },
 
-const badge = 'rounded-full px-3 py-1 text-xs font-bold';
+      // Espace client
+      { path: 'compte', element: <Navigate to="/compte/commandes" replace /> },
+      { path: 'compte/commandes', element: <PlaceholderPage title="Mes commandes" story="Espace client" /> },
+      { path: 'compte/commandes/:id', element: <PlaceholderPage title="Détail de la commande" story="Espace client" /> },
+      { path: 'compte/favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
+      { path: 'compte/profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
+
+      // Pages légales
+      { path: 'mentions-legales', element: <PlaceholderPage title="Mentions légales" story="US 12" /> },
+      { path: 'confidentialite', element: <PlaceholderPage title="Politique de confidentialité" story="US 12" /> },
+      { path: 'cgv', element: <PlaceholderPage title="Conditions générales de vente" story="US 12" /> },
+
+      { path: '*', element: <NotFoundPage /> },
+    ],
+  },
+  {
+    path: 'admin',
+    element: <AdminLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: <PlaceholderPage title="Tableau de bord" story="Administration" /> },
+      { path: 'produits', element: <PlaceholderPage title="Produits" story="Administration" /> },
+      { path: 'produits/:id', element: <PlaceholderPage title="Formulaire produit" story="Administration" /> },
+      { path: 'categories', element: <PlaceholderPage title="Catégories" story="Administration" /> },
+      { path: 'commandes', element: <PlaceholderPage title="Commandes" story="Administration" /> },
+      { path: 'utilisateurs', element: <PlaceholderPage title="Utilisateurs" story="Administration" /> },
+    ],
+  },
+]);
 
 function App() {
-  return (
-    <main className="mx-auto max-w-3xl px-4 py-16 md:px-16">
-      <p className="text-xs font-bold uppercase tracking-[0.18em] text-ciel">
-        Tourisme spatial
-      </p>
-
-      <h1 className="mt-3 font-display text-4xl font-extrabold md:text-7xl">
-        orbéa<span className="text-aube">.</span>
-      </h1>
-
-      <p className="mt-4 text-lg text-brume">
-        Le front React fonctionne, avec la charte Horizon dans Tailwind.
-      </p>
-
-      <section className="mt-8 rounded-carte bg-stratosphere p-6">
-        <h2 className="font-display text-2xl font-bold">Composants de test</h2>
-
-        <div className="mt-6 flex flex-wrap gap-4">
-          <button type="button" className={buttonPrimary}>
-            Réserver un voyage
-          </button>
-          <button type="button" className={buttonSecondary}>
-            Voir la boutique
-          </button>
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          <span className={`${badge} bg-ciel text-abysse`}>Classe affaires</span>
-          <span className={`${badge} bg-vigilance text-abysse`}>2 places</span>
-          <span className={`${badge} bg-succes text-abysse`}>Payée</span>
-          <span className={`${badge} border border-contour text-brume`}>
-            Complet
-          </span>
-        </div>
-      </section>
-    </main>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
