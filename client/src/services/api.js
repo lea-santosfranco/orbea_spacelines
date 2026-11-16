@@ -7,7 +7,8 @@ async function request(path, options = {}) {
     ...options,
   });
 
-  const data = await response.json().catch(() => null);
+  // 204 No Content : pas de corps à lire
+  const data = response.status === 204 ? null : await response.json().catch(() => null);
 
   if (!response.ok) {
     const error = new Error(data?.error || 'Une erreur est survenue');
@@ -86,4 +87,18 @@ export function getOrder(id, options = {}) {
 
 export function getOrders(params = {}, options = {}) {
   return request(`/orders${toQueryString(params)}`, options);
+}
+
+// ---------- Compte client ----------
+
+export function updateProfile(data) {
+  return request('/account/profile', { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+export function changePassword(data) {
+  return request('/account/password', { method: 'PATCH', body: JSON.stringify(data) });
+}
+
+export function deleteAccount(data) {
+  return request('/account', { method: 'DELETE', body: JSON.stringify(data) });
 }

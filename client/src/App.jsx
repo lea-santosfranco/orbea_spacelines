@@ -19,6 +19,7 @@ import ConfirmationPage from './pages/checkout/ConfirmationPage.jsx';
 import AccountLayout from './components/layout/AccountLayout.jsx';
 import OrdersPage from './pages/account/OrdersPage.jsx';
 import OrderDetailPage from './pages/account/OrderDetailPage.jsx';
+import ProfilePage from './pages/account/ProfilePage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -54,7 +55,7 @@ const router = createBrowserRouter([
               { path: 'commandes', element: <OrdersPage /> },
               { path: 'commandes/:id', element: <OrderDetailPage /> },
               { path: 'favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
-              { path: 'profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
+              { path: 'profil', element: <ProfilePage /> },
             ],
           },
         ],
