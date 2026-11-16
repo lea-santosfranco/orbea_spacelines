@@ -24,7 +24,7 @@ const variantSchema = z.object({
 });
 
 const productFields = {
-  categoryId: id,
+  categoryId: z.coerce.number().int().positive('Choisissez une catégorie'),
   name: z.string().trim().min(2, 'Le nom est obligatoire').max(150),
   description: z.string().trim().min(10, 'La description doit faire au moins 10 caractères').max(5000),
   durationDays: z.coerce.number().int().min(1).max(1000).nullable().optional(),
