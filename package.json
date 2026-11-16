@@ -5,7 +5,8 @@
   "scripts": {
     "postinstall": "npm ci --prefix server && npm run db:generate --prefix server && npm ci --prefix client",
     "db": "docker compose up -d",
-    "dev": "npm run db && concurrently --kill-others -n api,site -c blue,yellow \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+    "dev": "npm run db && concurrently --kill-others -n api,site -c blue,yellow \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "test": "npm test --prefix server && npm test --prefix client"
   },
   "devDependencies": {
     "concurrently": "9.2.5"
