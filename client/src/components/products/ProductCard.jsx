@@ -1,7 +1,7 @@
 import { Link } from 'react-router';
 import ProductImage from '../ui/ProductImage.jsx';
 import FavoriteButton from './FavoriteButton.jsx';
-import { formatDuration, formatPrice } from '../../utils/format.js';
+import { formatDate, formatDuration, formatPrice } from '../../utils/format.js';
 
 function ProductCard({ product }) {
   const basePath = product.type === 'TRIP' ? '/destinations' : '/boutique';
@@ -28,7 +28,12 @@ function ProductCard({ product }) {
           </Link>
         </h3>
 
-        {product.durationDays && <p className="mt-1 text-sm text-brume">{formatDuration(product.durationDays)}</p>}
+        {product.durationDays && (
+          <p className="mt-1 text-sm text-brume">
+            {formatDuration(product.durationDays)}
+            {product.nextDepartureDate && ` · prochain départ le ${formatDate(product.nextDepartureDate)}`}
+          </p>
+        )}
 
         <div className="mt-auto flex items-end justify-between gap-4 pt-6">
           {product.minPriceCents !== null && (

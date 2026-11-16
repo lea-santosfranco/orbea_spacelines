@@ -34,20 +34,53 @@ function readFilters(searchParams) {
   const sort = searchParams.get('sort');
   const page = Number(searchParams.get('page'));
 
+  const isDate = (value) => /^\d{4}-\d{2}-\d{2}$/.test(value ?? '');
+  const isAmount = (value) => /^\d{1,7}$/.test(value ?? '');
+  const travelClass = searchParams.get('travelClass');
+
   return {
     q: searchParams.get('q') ?? '',
     category: searchParams.get('category') ?? '',
-    sort: SORT_OPTIONS.some((option) => option.value === sort) ? sort : 'default',
+    sort: [...SORT_OPTIONS.map((option) => option.value), 'date'].includes(sort) ? sort : 'default',
     available: searchParams.get('available') === 'true',
+    minPrice: isAmount(searchParams.get('minPrice')) ? searchParams.get('minPrice') : '',
+    maxPrice: isAmount(searchParams.get('maxPrice')) ? searchParams.get('maxPrice') : '',
+    travelClass: ['ECONOMY', 'BUSINESS', 'FIRST'].includes(travelClass) ? travelClass : '',
+    departureFrom: isDate(searchParams.get('departureFrom')) ? searchParams.get('departureFrom') : '',
+    departureTo: isDate(searchParams.get('departureTo')) ? searchParams.get('departureTo') : '',
     page: Number.isInteger(page) && page > 1 ? page : 1,
   };
+}
+
+// Paramètres envoyés à l'API (les filtres vides sont ignorés par getProducts)
+function toApiParams(type, filters) {
+  const { page, sort, available, ...rest } = filters;
+  return {
+    type,
+    ...rest,
+    sort: sort === 'default' ? '' : sort,
+    available: available ? 'true' : '',
+    page,
+    limit: PAGE_SIZE,
+  };
+}
+
+// Construit l'URL du catalogue à partir des filtres (seuls les filtres utilisés apparaissent)
+function toSearchParams(filters) {
+  const params = new URLSearchParams();
+  for (const key of ['q', 'category', 'minPrice', 'maxPrice', 'travelClass', 'departureFrom', 'departureTo']) {
+    if (filters[key]) params.set(key, filters[key]);
+  }
+  if (filters.sort !== 'default') params.set('sort', filters.sort);
+  if (filters.available) params.set('available', 'true');
+  return params;
 }
 
 function CatalogPage({ type }) {
   const catalog = CATALOGS[type];
   const [searchParams, setSearchParams] = useSearchParams();
   const filters = readFilters(searchParams);
-  const { q, category, sort, available, page } = filters;
+  const { q, page } = filters;
 
   const [categories, setCategories] = useState([]);
   const [result, setResult] = useState({ key: null, data: null, error: false });
@@ -69,25 +102,14 @@ function CatalogPage({ type }) {
   useEffect(() => {
     const controller = new AbortController();
 
-    getProducts(
-      {
-        type,
-        q,
-        category,
-        sort: sort === 'default' ? '' : sort,
-        available: available ? 'true' : '',
-        page,
-        limit: PAGE_SIZE,
-      },
-      { signal: controller.signal },
-    )
+    getProducts(toApiParams(type, readFilters(new URLSearchParams(requestKey))), { signal: controller.signal })
       .then((data) => setResult({ key: requestKey, data, error: false }))
       .catch((error) => {
         if (error.name !== 'AbortError') setResult({ key: requestKey, data: null, error: true });
       });
 
     return () => controller.abort();
-  }, [requestKey, type, q, category, sort, available, page]);
+  }, [requestKey, type]);
 
   const status = result.key !== requestKey ? 'loading' : result.error ? 'error' : 'success';
   // Pendant un rechargement, on garde l'ancienne liste affichée (atténuée) plutôt qu'un écran vide
@@ -100,13 +122,7 @@ function CatalogPage({ type }) {
 
   // Met à jour l'URL ; tout changement de filtre ramène à la page 1
   function updateFilters(changes) {
-    const next = { ...filters, ...changes, page: 1 };
-    const params = new URLSearchParams();
-    if (next.q) params.set('q', next.q);
-    if (next.category) params.set('category', next.category);
-    if (next.sort !== 'default') params.set('sort', next.sort);
-    if (next.available) params.set('available', 'true');
-    setSearchParams(params);
+    setSearchParams(toSearchParams({ ...filters, ...changes }));
   }
 
   function resetFilters() {
@@ -160,6 +176,7 @@ function CatalogPage({ type }) {
               onReset={resetFilters}
               searchLabel={catalog.searchLabel}
               availableLabel={catalog.availableLabel}
+              type={type}
             />
           </div>
         </aside>
