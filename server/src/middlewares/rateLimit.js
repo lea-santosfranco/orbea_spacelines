@@ -20,3 +20,12 @@ export const registerLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Trop de créations de compte. Réessayez plus tard.' },
 });
+
+// Limite générale de l'API : protège contre l'abus et les scripts (1000 requêtes par IP et par 15 minutes)
+export const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1000,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: 'Trop de requêtes. Réessayez dans quelques minutes.' },
+});

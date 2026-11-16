@@ -24,7 +24,10 @@ export function toPublicUser(user) {
 
 export function createToken(user) {
   // Le jeton ne contient que l'identifiant et le rôle, rien de sensible
-  return jwt.sign({ sub: String(user.id), role: user.role }, config.jwtSecret, { expiresIn: config.jwtExpiresIn });
+  return jwt.sign({ sub: String(user.id), role: user.role }, config.jwtSecret, {
+    algorithm: 'HS256',
+    expiresIn: config.jwtExpiresIn,
+  });
 }
 
 export async function register({ firstName, lastName, email, password }) {
@@ -63,7 +66,8 @@ export async function login({ email, password }) {
 export async function getUserFromToken(token) {
   let payload;
   try {
-    payload = jwt.verify(token, config.jwtSecret);
+    // Algorithme imposé : refuse les jetons « alg: none » ou signés avec un autre algorithme
+    payload = jwt.verify(token, config.jwtSecret, { algorithms: ['HS256'] });
   } catch {
     return null; // Jeton expiré, modifié ou mal formé
   }

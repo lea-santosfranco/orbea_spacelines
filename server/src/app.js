@@ -8,6 +8,7 @@ import routes from './routes/index.js';
 import { postStripeWebhook } from './controllers/orders.controller.js';
 import { notFound } from './middlewares/notFound.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { apiLimiter } from './middlewares/rateLimit.js';
 
 const app = express();
 
@@ -25,7 +26,7 @@ app.use(cookieParser());
 // Images envoyées par l'administration (lecture seule, sans liste des fichiers du dossier)
 app.use('/uploads', express.static(path.resolve('uploads'), { index: false, dotfiles: 'deny', maxAge: '7d' }));
 
-app.use('/api', routes);
+app.use('/api', apiLimiter, routes);
 
 app.use(notFound);
 app.use(errorHandler);
