@@ -1,14 +1,14 @@
 import { prisma } from '../config/prisma.js';
 import { HttpError } from '../utils/httpError.js';
 
-const cardInclude = {
+export const cardInclude = {
   category: { select: { name: true, slug: true } },
   images: { orderBy: { position: 'asc' }, take: 1, select: { url: true, altText: true } },
   variants: { where: { isActive: true }, select: { priceCents: true, stock: true } },
 };
 
 // Transforme un produit de la base en objet prêt pour une carte du catalogue
-function toProductCard(product) {
+export function toProductCard(product) {
   const prices = product.variants.map((variant) => variant.priceCents);
 
   return {
