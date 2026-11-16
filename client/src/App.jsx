@@ -20,7 +20,7 @@ const router = createBrowserRouter([
       { path: 'destinations', element: <CatalogPage key="TRIP" type="TRIP" /> },
       { path: 'destinations/:slug', element: <ProductDetailPage key="TRIP" type="TRIP" /> },
       { path: 'boutique', element: <CatalogPage key="GOODIE" type="GOODIE" /> },
-      { path: 'boutique/:slug', element: <PlaceholderPage title="Fiche goodie" story="US 7" /> },
+      { path: 'boutique/:slug', element: <ProductDetailPage key="GOODIE" type="GOODIE" /> },
       { path: 'panier', element: <PlaceholderPage title="Panier" story="US 8, US 9" /> },
       { path: 'connexion', element: <PlaceholderPage title="Connexion" story="US 10, US 11" /> },
 

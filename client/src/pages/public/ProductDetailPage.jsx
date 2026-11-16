@@ -3,13 +3,33 @@ import { Link, useParams } from 'react-router';
 import { Clock } from 'lucide-react';
 import ProductGallery from '../../components/products/ProductGallery.jsx';
 import TripDepartures from '../../components/products/TripDepartures.jsx';
+import SizePicker from '../../components/products/SizePicker.jsx';
 import NotFoundPage from '../NotFoundPage.jsx';
 import { getProduct } from '../../services/api.js';
 import { formatDate, formatDuration, formatPrice, TRAVEL_CLASS_LABELS } from '../../utils/format.js';
 
 const SECTIONS = {
   TRIP: { label: 'Destinations', path: '/destinations' },
+  GOODIE: { label: 'Boutique', path: '/boutique' },
 };
+
+// Phrase qui résume la variante choisie (ou ce qu'il reste à faire)
+function selectionMessage(product, selected) {
+  if (!product.isAvailable) {
+    return product.type === 'TRIP' ? 'Ce voyage est complet.' : 'Cet article est épuisé.';
+  }
+  if (!selected) {
+    return product.type === 'TRIP' ? 'Sélectionnez une date et une classe de voyage.' : 'Sélectionnez une taille.';
+  }
+  if (product.type === 'TRIP') {
+    return `Votre sélection : départ le ${formatDate(selected.departureDate)}, classe ${
+      TRAVEL_CLASS_LABELS[selected.travelClass]
+    }, ${formatPrice(selected.priceCents)} par voyageur.`;
+  }
+  const stockNote = selected.stock <= 5 ? ` Plus que ${selected.stock} en stock.` : ' En stock.';
+  const sizeNote = product.variants.length > 1 ? `taille ${selected.size}, ` : '';
+  return `Votre sélection : ${sizeNote}${formatPrice(selected.priceCents)}.${stockNote}`;
+}
 
 function ProductDetail({ slug, type }) {
   const section = SECTIONS[type];
@@ -57,7 +77,11 @@ function ProductDetail({ slug, type }) {
     );
   }
 
-  const selected = product.variants.find((variant) => variant.id === selectedId) ?? null;
+  // Article à taille unique : la seule variante est choisie d'office (si elle est en stock)
+  const singleVariant = product.type === 'GOODIE' && product.variants.length === 1 ? product.variants[0] : null;
+  const selected =
+    product.variants.find((variant) => variant.id === selectedId) ??
+    (singleVariant && singleVariant.stock > 0 ? singleVariant : null);
 
   return (
     <article className="mx-auto max-w-7xl px-4 py-12 lg:px-16 lg:py-16">
@@ -106,18 +130,26 @@ function ProductDetail({ slug, type }) {
             </p>
           )}
 
-          <h2 className="mt-10 font-display text-[22px] font-bold">Choisir un départ</h2>
-          <TripDepartures variants={product.variants} selectedId={selectedId} onSelect={setSelectedId} />
+          {product.type === 'TRIP' && (
+            <>
+              <h2 className="mt-10 font-display text-[22px] font-bold">Choisir un départ</h2>
+              <TripDepartures variants={product.variants} selectedId={selectedId} onSelect={setSelectedId} />
+            </>
+          )}
+
+          {product.type === 'GOODIE' &&
+            (singleVariant ? (
+              <p className="mt-10 text-brume">Taille unique</p>
+            ) : (
+              <>
+                <h2 className="mt-10 font-display text-[22px] font-bold">Choisir une taille</h2>
+                <SizePicker variants={product.variants} selectedId={selected?.id ?? null} onSelect={setSelectedId} />
+              </>
+            ))}
 
           {/* Récapitulatif de la sélection, annoncé aux lecteurs d'écran */}
           <p aria-live="polite" className="mt-6 rounded-champ bg-stratosphere p-4 text-brume">
-            {selected
-              ? `Votre sélection : départ le ${formatDate(selected.departureDate)}, classe ${
-                  TRAVEL_CLASS_LABELS[selected.travelClass]
-                }, ${formatPrice(selected.priceCents)} par voyageur.`
-              : product.isAvailable
-                ? 'Sélectionnez une date et une classe de voyage.'
-                : 'Ce voyage est complet.'}
+            {selectionMessage(product, selected)}
           </p>
         </div>
       </div>
