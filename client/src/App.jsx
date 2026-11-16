@@ -20,6 +20,8 @@ import AccountLayout from './components/layout/AccountLayout.jsx';
 import OrdersPage from './pages/account/OrdersPage.jsx';
 import OrderDetailPage from './pages/account/OrderDetailPage.jsx';
 import ProfilePage from './pages/account/ProfilePage.jsx';
+import FavoritesPage from './pages/account/FavoritesPage.jsx';
+import FavoritesProvider from './context/FavoritesProvider.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -54,7 +56,7 @@ const router = createBrowserRouter([
               { index: true, element: <Navigate to="/compte/commandes" replace /> },
               { path: 'commandes', element: <OrdersPage /> },
               { path: 'commandes/:id', element: <OrderDetailPage /> },
-              { path: 'favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
+              { path: 'favoris', element: <FavoritesPage /> },
               { path: 'profil', element: <ProfilePage /> },
             ],
           },
@@ -92,7 +94,9 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <RouterProvider router={router} />
+        <FavoritesProvider>
+          <RouterProvider router={router} />
+        </FavoritesProvider>
       </CartProvider>
     </AuthProvider>
   );

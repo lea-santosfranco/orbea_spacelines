@@ -102,3 +102,17 @@ export function changePassword(data) {
 export function deleteAccount(data) {
   return request('/account', { method: 'DELETE', body: JSON.stringify(data) });
 }
+
+// ---------- Favoris ----------
+
+export function getFavorites(options = {}) {
+  return request('/favorites', options);
+}
+
+export function addFavorite(productId) {
+  return request('/favorites', { method: 'POST', body: JSON.stringify({ productId }) });
+}
+
+export function removeFavorite(productId) {
+  return request(`/favorites/${productId}`, { method: 'DELETE' });
+}

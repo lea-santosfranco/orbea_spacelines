@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import ProductImage from '../ui/ProductImage.jsx';
+import FavoriteButton from './FavoriteButton.jsx';
 import { formatDuration, formatPrice } from '../../utils/format.js';
 
 function ProductCard({ product }) {
@@ -13,6 +14,7 @@ function ProductCard({ product }) {
       }`}
     >
       <ProductImage image={product.image} className="aspect-[16/10] w-full" />
+      <FavoriteButton productId={product.id} productName={product.name} className="absolute! right-3 top-3" />
 
       <div className="flex flex-1 flex-col p-6">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-ciel">{product.category.name}</p>

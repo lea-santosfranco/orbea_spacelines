@@ -5,6 +5,7 @@ import ProductGallery from '../../components/products/ProductGallery.jsx';
 import TripDepartures from '../../components/products/TripDepartures.jsx';
 import SizePicker from '../../components/products/SizePicker.jsx';
 import AddToCart from '../../components/products/AddToCart.jsx';
+import FavoriteButton from '../../components/products/FavoriteButton.jsx';
 import NotFoundPage from '../NotFoundPage.jsx';
 import { getProduct } from '../../services/api.js';
 import { formatDate, formatDuration, formatPrice, TRAVEL_CLASS_LABELS } from '../../utils/format.js';
@@ -113,9 +114,16 @@ function ProductDetail({ slug, type }) {
 
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-ciel">{product.category.name}</p>
-          <h1 className="mt-2 break-words font-display text-[32px] font-extrabold leading-[1.1] sm:text-[40px]">
-            {product.name}
-          </h1>
+          <div className="mt-2 flex items-start justify-between gap-4">
+            <h1 className="break-words font-display text-[32px] font-extrabold leading-[1.1] sm:text-[40px]">
+              {product.name}
+            </h1>
+            <FavoriteButton
+              productId={product.id}
+              productName={product.name}
+              className="shrink-0 border border-contour"
+            />
+          </div>
 
           {product.durationDays && (
             <p className="mt-4 flex items-center gap-2 text-brume">
