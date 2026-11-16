@@ -12,6 +12,8 @@ import TermsPage from './pages/legal/TermsPage.jsx';
 import LoginPage from './pages/public/LoginPage.jsx';
 import RequireAuth from './components/auth/RequireAuth.jsx';
 import AuthProvider from './context/AuthProvider.jsx';
+import CartProvider from './context/CartProvider.jsx';
+import CartPage from './pages/public/CartPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -27,7 +29,7 @@ const router = createBrowserRouter([
       { path: 'destinations/:slug', element: <ProductDetailPage key="TRIP" type="TRIP" /> },
       { path: 'boutique', element: <CatalogPage key="GOODIE" type="GOODIE" /> },
       { path: 'boutique/:slug', element: <ProductDetailPage key="GOODIE" type="GOODIE" /> },
-      { path: 'panier', element: <PlaceholderPage title="Panier" story="US 8, US 9" /> },
+      { path: 'panier', element: <CartPage /> },
       { path: 'connexion', element: <LoginPage /> },
 
       // Pages réservées aux clients connectés
@@ -41,7 +43,10 @@ const router = createBrowserRouter([
           // Espace client
           { path: 'compte', element: <Navigate to="/compte/commandes" replace /> },
           { path: 'compte/commandes', element: <PlaceholderPage title="Mes commandes" story="Espace client" /> },
-          { path: 'compte/commandes/:id', element: <PlaceholderPage title="Détail de la commande" story="Espace client" /> },
+          {
+            path: 'compte/commandes/:id',
+            element: <PlaceholderPage title="Détail de la commande" story="Espace client" />,
+          },
           { path: 'compte/favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
           { path: 'compte/profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
         ],
@@ -77,7 +82,9 @@ const router = createBrowserRouter([
 function App() {
   return (
     <AuthProvider>
-      <RouterProvider router={router} />
+      <CartProvider>
+        <RouterProvider router={router} />
+      </CartProvider>
     </AuthProvider>
   );
 }

@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router';
 import { Heart, LogOut, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
 import Logo from './Logo.jsx';
 import { useAuth } from '../../context/useAuth.js';
+import { useCart } from '../../context/useCart.js';
 
 const mainLinks = [
   { to: '/destinations', label: 'Destinations' },
@@ -54,7 +55,8 @@ function Header() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const cartCount = 0; // Sera relié au contexte Panier (US 8)
+  const { cart } = useCart();
+  const cartCount = cart.itemCount;
   const closeMenu = () => setMenuOpen(false);
 
   const accountLink = user

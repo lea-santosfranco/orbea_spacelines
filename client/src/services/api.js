@@ -55,3 +55,21 @@ export function logout() {
 export function getMe(options = {}) {
   return request('/auth/me', options);
 }
+
+// ---------- Panier ----------
+
+export function getCart(options = {}) {
+  return request('/cart', options);
+}
+
+export function addCartItem(variantId, quantity) {
+  return request('/cart/items', { method: 'POST', body: JSON.stringify({ variantId, quantity }) });
+}
+
+export function updateCartItem(variantId, quantity) {
+  return request(`/cart/items/${variantId}`, { method: 'PATCH', body: JSON.stringify({ quantity }) });
+}
+
+export function removeCartItem(variantId) {
+  return request(`/cart/items/${variantId}`, { method: 'DELETE' });
+}

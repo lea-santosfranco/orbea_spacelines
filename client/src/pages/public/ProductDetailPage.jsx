@@ -4,6 +4,7 @@ import { Clock } from 'lucide-react';
 import ProductGallery from '../../components/products/ProductGallery.jsx';
 import TripDepartures from '../../components/products/TripDepartures.jsx';
 import SizePicker from '../../components/products/SizePicker.jsx';
+import AddToCart from '../../components/products/AddToCart.jsx';
 import NotFoundPage from '../NotFoundPage.jsx';
 import { getProduct } from '../../services/api.js';
 import { formatDate, formatDuration, formatPrice, TRAVEL_CLASS_LABELS } from '../../utils/format.js';
@@ -151,6 +152,11 @@ function ProductDetail({ slug, type }) {
           <p aria-live="polite" className="mt-6 rounded-champ bg-stratosphere p-4 text-brume">
             {selectionMessage(product, selected)}
           </p>
+
+          {product.isAvailable && (
+            // La clé remet la quantité à 1 quand on change de départ ou de taille
+            <AddToCart key={selected?.id ?? 'aucune'} variant={selected} isTrip={product.type === 'TRIP'} />
+          )}
         </div>
       </div>
 
