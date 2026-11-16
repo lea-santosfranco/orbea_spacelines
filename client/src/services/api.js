@@ -83,3 +83,7 @@ export function createCheckout(data) {
 export function getOrder(id, options = {}) {
   return request(`/orders/${id}`, options);
 }
+
+export function getOrders(params = {}, options = {}) {
+  return request(`/orders${toQueryString(params)}`, options);
+}

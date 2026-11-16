@@ -16,6 +16,9 @@ import CartProvider from './context/CartProvider.jsx';
 import CartPage from './pages/public/CartPage.jsx';
 import CheckoutPage from './pages/checkout/CheckoutPage.jsx';
 import ConfirmationPage from './pages/checkout/ConfirmationPage.jsx';
+import AccountLayout from './components/layout/AccountLayout.jsx';
+import OrdersPage from './pages/account/OrdersPage.jsx';
+import OrderDetailPage from './pages/account/OrderDetailPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -43,14 +46,17 @@ const router = createBrowserRouter([
           { path: 'commande/confirmation', element: <ConfirmationPage /> },
 
           // Espace client
-          { path: 'compte', element: <Navigate to="/compte/commandes" replace /> },
-          { path: 'compte/commandes', element: <PlaceholderPage title="Mes commandes" story="Espace client" /> },
           {
-            path: 'compte/commandes/:id',
-            element: <PlaceholderPage title="Détail de la commande" story="Espace client" />,
+            path: 'compte',
+            element: <AccountLayout />,
+            children: [
+              { index: true, element: <Navigate to="/compte/commandes" replace /> },
+              { path: 'commandes', element: <OrdersPage /> },
+              { path: 'commandes/:id', element: <OrderDetailPage /> },
+              { path: 'favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
+              { path: 'profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
+            ],
           },
-          { path: 'compte/favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
-          { path: 'compte/profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
         ],
       },
 
