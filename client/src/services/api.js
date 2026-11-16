@@ -143,4 +143,19 @@ export const admin = {
   setUserActive: (id, isActive) =>
     request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
   getStats: (period, options = {}) => request(`/admin/stats?period=${period}`, options),
+  deleteReview: (id) => request(`/admin/reviews/${id}`, { method: 'DELETE' }),
 };
+
+// ---------- Avis ----------
+
+export function getReviews(slug, options = {}) {
+  return request(`/products/${encodeURIComponent(slug)}/reviews`, options);
+}
+
+export function createReview(slug, data) {
+  return request(`/products/${encodeURIComponent(slug)}/reviews`, { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function deleteMyReview(slug) {
+  return request(`/products/${encodeURIComponent(slug)}/reviews/mine`, { method: 'DELETE' });
+}

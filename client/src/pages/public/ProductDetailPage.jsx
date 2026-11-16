@@ -6,6 +6,7 @@ import TripDepartures from '../../components/products/TripDepartures.jsx';
 import SizePicker from '../../components/products/SizePicker.jsx';
 import AddToCart from '../../components/products/AddToCart.jsx';
 import FavoriteButton from '../../components/products/FavoriteButton.jsx';
+import ProductReviews from '../../components/products/ProductReviews.jsx';
 import NotFoundPage from '../NotFoundPage.jsx';
 import { getProduct } from '../../services/api.js';
 import { formatDate, formatDuration, formatPrice, TRAVEL_CLASS_LABELS } from '../../utils/format.js';
@@ -174,6 +175,8 @@ function ProductDetail({ slug, type }) {
         </h2>
         <p className="mt-4 whitespace-pre-line text-lg text-brume">{product.description}</p>
       </section>
+
+      <ProductReviews slug={product.slug} />
     </article>
   );
 }
