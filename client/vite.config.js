@@ -8,6 +8,8 @@ export default defineConfig({
     // En développement, les appels à /api sont transmis à l'API Express
     proxy: {
       '/api': 'http://localhost:3000',
+      // Images envoyées depuis l'administration
+      '/uploads': 'http://localhost:3000',
     },
   },
 });

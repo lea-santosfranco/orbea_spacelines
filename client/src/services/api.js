@@ -1,10 +1,12 @@
 // Point d'entrée unique pour tous les appels à l'API
 
 async function request(path, options = {}) {
+  // Pour un envoi de fichier (FormData), le navigateur fixe lui-même le Content-Type multipart
+  const isFormData = options.body instanceof FormData;
   const response = await fetch(`/api${path}`, {
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
+    headers: { ...(isFormData ? {} : { 'Content-Type': 'application/json' }), ...options.headers },
   });
 
   // 204 No Content : pas de corps à lire
@@ -116,3 +118,21 @@ export function addFavorite(productId) {
 export function removeFavorite(productId) {
   return request(`/favorites/${productId}`, { method: 'DELETE' });
 }
+
+// ---------- Administration ----------
+
+export const admin = {
+  getProducts: (params = {}, options = {}) => request(`/admin/products${toQueryString(params)}`, options),
+  getProduct: (id, options = {}) => request(`/admin/products/${id}`, options),
+  createProduct: (data) => request('/admin/products', { method: 'POST', body: JSON.stringify(data) }),
+  updateProduct: (id, data) => request(`/admin/products/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  setArchived: (id, isArchived) =>
+    request(`/admin/products/${id}/archive`, { method: 'PATCH', body: JSON.stringify({ isArchived }) }),
+  uploadImage: (id, formData) => request(`/admin/products/${id}/images`, { method: 'POST', body: formData }),
+  deleteImage: (id, imageId) => request(`/admin/products/${id}/images/${imageId}`, { method: 'DELETE' }),
+  setMainImage: (id, imageId) => request(`/admin/products/${id}/images/${imageId}/main`, { method: 'PATCH' }),
+  getCategories: (options = {}) => request('/admin/categories', options),
+  createCategory: (data) => request('/admin/categories', { method: 'POST', body: JSON.stringify(data) }),
+  updateCategory: (id, data) => request(`/admin/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteCategory: (id) => request(`/admin/categories/${id}`, { method: 'DELETE' }),
+};

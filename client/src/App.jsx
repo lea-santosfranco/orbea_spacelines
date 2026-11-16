@@ -22,6 +22,9 @@ import OrderDetailPage from './pages/account/OrderDetailPage.jsx';
 import ProfilePage from './pages/account/ProfilePage.jsx';
 import FavoritesPage from './pages/account/FavoritesPage.jsx';
 import FavoritesProvider from './context/FavoritesProvider.jsx';
+import AdminProductsPage from './pages/admin/AdminProductsPage.jsx';
+import AdminProductFormPage from './pages/admin/AdminProductFormPage.jsx';
+import AdminCategoriesPage from './pages/admin/AdminCategoriesPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -81,9 +84,9 @@ const router = createBrowserRouter([
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <PlaceholderPage title="Tableau de bord" story="Administration" /> },
-      { path: 'produits', element: <PlaceholderPage title="Produits" story="Administration" /> },
-      { path: 'produits/:id', element: <PlaceholderPage title="Formulaire produit" story="Administration" /> },
-      { path: 'categories', element: <PlaceholderPage title="Catégories" story="Administration" /> },
+      { path: 'produits', element: <AdminProductsPage /> },
+      { path: 'produits/:id', element: <AdminProductFormPage /> },
+      { path: 'categories', element: <AdminCategoriesPage /> },
       { path: 'commandes', element: <PlaceholderPage title="Commandes" story="Administration" /> },
       { path: 'utilisateurs', element: <PlaceholderPage title="Utilisateurs" story="Administration" /> },
     ],
