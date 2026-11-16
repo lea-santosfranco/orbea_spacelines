@@ -135,4 +135,12 @@ export const admin = {
   createCategory: (data) => request('/admin/categories', { method: 'POST', body: JSON.stringify(data) }),
   updateCategory: (id, data) => request(`/admin/categories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteCategory: (id) => request(`/admin/categories/${id}`, { method: 'DELETE' }),
+  getOrders: (params = {}, options = {}) => request(`/admin/orders${toQueryString(params)}`, options),
+  getOrder: (id, options = {}) => request(`/admin/orders/${id}`, options),
+  updateOrderStatus: (id, status) =>
+    request(`/admin/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  getUsers: (params = {}, options = {}) => request(`/admin/users${toQueryString(params)}`, options),
+  setUserActive: (id, isActive) =>
+    request(`/admin/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ isActive }) }),
+  getStats: (period, options = {}) => request(`/admin/stats?period=${period}`, options),
 };

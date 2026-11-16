@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import Layout from './components/layout/Layout.jsx';
 import AdminLayout from './components/layout/AdminLayout.jsx';
-import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import HomePage from './pages/public/HomePage.jsx';
 import CatalogPage from './pages/public/CatalogPage.jsx';
 import ProductDetailPage from './pages/public/ProductDetailPage.jsx';
@@ -25,6 +24,10 @@ import FavoritesProvider from './context/FavoritesProvider.jsx';
 import AdminProductsPage from './pages/admin/AdminProductsPage.jsx';
 import AdminProductFormPage from './pages/admin/AdminProductFormPage.jsx';
 import AdminCategoriesPage from './pages/admin/AdminCategoriesPage.jsx';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage.jsx';
+import AdminOrderDetailPage from './pages/admin/AdminOrderDetailPage.jsx';
+import AdminUsersPage from './pages/admin/AdminUsersPage.jsx';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -83,12 +86,13 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorPage />,
     children: [
-      { index: true, element: <PlaceholderPage title="Tableau de bord" story="Administration" /> },
+      { index: true, element: <AdminDashboardPage /> },
       { path: 'produits', element: <AdminProductsPage /> },
       { path: 'produits/:id', element: <AdminProductFormPage /> },
       { path: 'categories', element: <AdminCategoriesPage /> },
-      { path: 'commandes', element: <PlaceholderPage title="Commandes" story="Administration" /> },
-      { path: 'utilisateurs', element: <PlaceholderPage title="Utilisateurs" story="Administration" /> },
+      { path: 'commandes', element: <AdminOrdersPage /> },
+      { path: 'commandes/:id', element: <AdminOrderDetailPage /> },
+      { path: 'utilisateurs', element: <AdminUsersPage /> },
     ],
   },
 ]);
