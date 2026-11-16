@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
-const email = z.string().trim().toLowerCase().pipe(z.email('Adresse e-mail invalide').max(255));
+export const email = z.string().trim().toLowerCase().pipe(z.email('Adresse e-mail invalide').max(255));
 
 // Recommandation CNIL : au moins 12 caractères mêlant majuscules, minuscules, chiffres et caractères spéciaux
-const strongPassword = z
+export const strongPassword = z
   .string()
   .min(12, 'Le mot de passe doit contenir au moins 12 caractères')
   .max(128, 'Le mot de passe ne doit pas dépasser 128 caractères')
@@ -12,7 +12,7 @@ const strongPassword = z
   .regex(/[0-9]/, 'Le mot de passe doit contenir un chiffre')
   .regex(/[^a-zA-Z0-9]/, 'Le mot de passe doit contenir un caractère spécial');
 
-const name = (label) =>
+export const name = (label) =>
   z.string().trim().min(1, `${label} est obligatoire`).max(100, `${label} est trop long`);
 
 export const registerBody = z.object({
