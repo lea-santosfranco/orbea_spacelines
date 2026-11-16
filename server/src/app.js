@@ -1,3 +1,4 @@
+import path from 'node:path';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
@@ -20,6 +21,9 @@ app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), post
 
 app.use(express.json({ limit: '100kb' }));
 app.use(cookieParser());
+
+// Images envoyées par l'administration (lecture seule, sans liste des fichiers du dossier)
+app.use('/uploads', express.static(path.resolve('uploads'), { index: false, dotfiles: 'deny', maxAge: '7d' }));
 
 app.use('/api', routes);
 
