@@ -37,3 +37,21 @@ export function getCategories(params = {}, options = {}) {
 export function getProduct(slug, options = {}) {
   return request(`/products/${encodeURIComponent(slug)}`, options);
 }
+
+// ---------- Authentification ----------
+
+export function register(data) {
+  return request('/auth/register', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function login(data) {
+  return request('/auth/login', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function logout() {
+  return request('/auth/logout', { method: 'POST' });
+}
+
+export function getMe(options = {}) {
+  return request('/auth/me', options);
+}

@@ -45,7 +45,10 @@ function CatalogFilters({ filters, categories, onChange, onReset, searchLabel, a
         <legend className={labelClass}>Catégorie</legend>
         <div className="mt-3 flex flex-col gap-2">
           {[{ slug: '', name: 'Toutes' }, ...categories].map((category) => (
-            <label key={category.slug || 'all'} className="flex cursor-pointer items-center gap-3 text-brume has-checked:text-neige">
+            <label
+              key={category.slug || 'all'}
+              className="flex cursor-pointer items-center gap-3 text-brume has-checked:text-neige"
+            >
               <input
                 type="radio"
                 name={`${id}-category`}

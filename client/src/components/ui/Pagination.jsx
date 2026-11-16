@@ -25,7 +25,11 @@ function Pagination({ page, totalPages }) {
       <ul className="flex items-center gap-2">
         <li>
           {page > 1 ? (
-            <Link to={pageUrl(page - 1)} aria-label="Page précédente" className={`${itemClass} text-brume hover:bg-stratosphere-haute hover:text-neige`}>
+            <Link
+              to={pageUrl(page - 1)}
+              aria-label="Page précédente"
+              className={`${itemClass} text-brume hover:bg-stratosphere-haute hover:text-neige`}
+            >
               <ChevronLeft aria-hidden="true" strokeWidth={1.5} className="size-5" />
             </Link>
           ) : (
@@ -52,7 +56,11 @@ function Pagination({ page, totalPages }) {
 
         <li>
           {page < totalPages ? (
-            <Link to={pageUrl(page + 1)} aria-label="Page suivante" className={`${itemClass} text-brume hover:bg-stratosphere-haute hover:text-neige`}>
+            <Link
+              to={pageUrl(page + 1)}
+              aria-label="Page suivante"
+              className={`${itemClass} text-brume hover:bg-stratosphere-haute hover:text-neige`}
+            >
               <ChevronRight aria-hidden="true" strokeWidth={1.5} className="size-5" />
             </Link>
           ) : (

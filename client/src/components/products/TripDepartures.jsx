@@ -52,7 +52,9 @@ function TripDepartures({ variants, selectedId, onSelect }) {
                   />
                   <span className="text-sm font-bold text-ciel">{TRAVEL_CLASS_LABELS[variant.travelClass]}</span>
                   <span className="text-lg font-bold">{formatPrice(variant.priceCents)}</span>
-                  <span className={`text-sm ${soldOut ? 'text-brume' : variant.stock <= 2 ? 'text-vigilance' : 'text-brume'}`}>
+                  <span
+                    className={`text-sm ${soldOut ? 'text-brume' : variant.stock <= 2 ? 'text-vigilance' : 'text-brume'}`}
+                  >
                     {soldOut ? 'Complet' : formatSeats(variant.stock)}
                   </span>
                 </label>

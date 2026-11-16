@@ -1,17 +1,12 @@
 import { useId, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
-import { Heart, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
+import { Heart, LogOut, Menu, Search, ShoppingBag, User, X } from 'lucide-react';
 import Logo from './Logo.jsx';
+import { useAuth } from '../../context/useAuth.js';
 
 const mainLinks = [
   { to: '/destinations', label: 'Destinations' },
   { to: '/boutique', label: 'Boutique' },
-];
-
-const mobileLinks = [
-  ...mainLinks,
-  { to: '/compte/favoris', label: 'Mes favoris' },
-  { to: '/compte', label: 'Mon compte' },
 ];
 
 const focusRing = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-aube';
@@ -56,9 +51,23 @@ function SearchForm({ className = '', onSearch }) {
 }
 
 function Header() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const cartCount = 0; // Sera relié au contexte Panier (US 8)
   const closeMenu = () => setMenuOpen(false);
+
+  const accountLink = user
+    ? { to: '/compte', label: `Mon compte (${user.firstName})` }
+    : { to: '/connexion', label: 'Se connecter' };
+
+  const mobileLinks = [...mainLinks, { to: '/compte/favoris', label: 'Mes favoris' }, accountLink];
+
+  async function handleLogout() {
+    closeMenu();
+    await logout();
+    navigate('/');
+  }
 
   return (
     <header className="border-b border-trait">
@@ -83,9 +92,25 @@ function Header() {
           <Link to="/compte/favoris" aria-label="Mes favoris" className={`hidden lg:flex ${iconButtonClass}`}>
             <Heart aria-hidden="true" strokeWidth={1.5} className="size-5" />
           </Link>
-          <Link to="/compte" aria-label="Mon compte" className={`hidden lg:flex ${iconButtonClass}`}>
+          <Link
+            to={accountLink.to}
+            aria-label={accountLink.label}
+            title={accountLink.label}
+            className={`hidden lg:flex ${iconButtonClass}`}
+          >
             <User aria-hidden="true" strokeWidth={1.5} className="size-5" />
           </Link>
+          {user && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
+              className={`hidden lg:flex ${iconButtonClass}`}
+            >
+              <LogOut aria-hidden="true" strokeWidth={1.5} className="size-5" />
+            </button>
+          )}
           <Link to="/panier" aria-label={`Panier, ${cartCount} article(s)`} className={iconButtonClass}>
             <ShoppingBag aria-hidden="true" strokeWidth={1.5} className="size-5" />
             {cartCount > 0 && (
@@ -123,6 +148,17 @@ function Header() {
                   </NavLink>
                 </li>
               ))}
+              {user && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className={`block w-full text-left ${navLinkClass({ isActive: false })}`}
+                  >
+                    Se déconnecter
+                  </button>
+                </li>
+              )}
             </ul>
           </nav>
         </div>

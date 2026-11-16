@@ -2,7 +2,7 @@ import { Link, NavLink, Outlet, ScrollRestoration } from 'react-router';
 import { ArrowLeft, LayoutDashboard, Package, Receipt, Tags, Users } from 'lucide-react';
 import Logo from './Logo.jsx';
 
-// L'accès sera réservé aux administrateurs avec l'authentification (A1)
+// Accès réservé aux administrateurs (RequireAuth côté front, contrôle du rôle côté API)
 const adminLinks = [
   { to: '/admin', label: 'Tableau de bord', icon: LayoutDashboard, end: true },
   { to: '/admin/produits', label: 'Produits', icon: Package },

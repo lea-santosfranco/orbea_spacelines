@@ -70,7 +70,15 @@ function CatalogPage({ type }) {
     const controller = new AbortController();
 
     getProducts(
-      { type, q, category, sort: sort === 'default' ? '' : sort, available: available ? 'true' : '', page, limit: PAGE_SIZE },
+      {
+        type,
+        q,
+        category,
+        sort: sort === 'default' ? '' : sort,
+        available: available ? 'true' : '',
+        page,
+        limit: PAGE_SIZE,
+      },
       { signal: controller.signal },
     )
       .then((data) => setResult({ key: requestKey, data, error: false }))
@@ -127,7 +135,9 @@ function CatalogPage({ type }) {
       </nav>
 
       <p className="mt-8 text-xs font-bold uppercase tracking-[0.18em] text-ciel">{catalog.eyebrow}</p>
-      <h1 className="mt-2 break-words font-display text-[32px] font-extrabold leading-[1.1] sm:text-[40px]">{catalog.title}</h1>
+      <h1 className="mt-2 break-words font-display text-[32px] font-extrabold leading-[1.1] sm:text-[40px]">
+        {catalog.title}
+      </h1>
       <p className="mt-4 max-w-xl text-lg text-brume">{catalog.intro}</p>
 
       <div className="mt-10 lg:grid lg:grid-cols-[260px_1fr] lg:gap-12">
@@ -162,7 +172,11 @@ function CatalogPage({ type }) {
           </p>
 
           {state.status === 'loading' && !state.data && (
-            <div className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true" aria-label="Chargement du catalogue">
+            <div
+              className="mt-6 grid gap-6 sm:grid-cols-2 xl:grid-cols-3"
+              aria-busy="true"
+              aria-label="Chargement du catalogue"
+            >
               {[1, 2, 3, 4, 5, 6].map((key) => (
                 <div key={key} className="h-96 rounded-carte bg-stratosphere motion-safe:animate-pulse" />
               ))}
@@ -178,7 +192,9 @@ function CatalogPage({ type }) {
           {state.data && state.status !== 'error' && total === 0 && (
             <div className="mt-6 rounded-carte border border-trait p-8 text-center">
               <p className="font-display text-[22px] font-bold">Aucun résultat</p>
-              <p className="mt-2 text-brume">Aucun produit ne correspond à votre recherche. Essayez d'autres filtres.</p>
+              <p className="mt-2 text-brume">
+                Aucun produit ne correspond à votre recherche. Essayez d'autres filtres.
+              </p>
               <button
                 type="button"
                 onClick={resetFilters}

@@ -9,6 +9,9 @@ import ProductDetailPage from './pages/public/ProductDetailPage.jsx';
 import LegalNoticePage from './pages/legal/LegalNoticePage.jsx';
 import PrivacyPage from './pages/legal/PrivacyPage.jsx';
 import TermsPage from './pages/legal/TermsPage.jsx';
+import LoginPage from './pages/public/LoginPage.jsx';
+import RequireAuth from './components/auth/RequireAuth.jsx';
+import AuthProvider from './context/AuthProvider.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -25,18 +28,24 @@ const router = createBrowserRouter([
       { path: 'boutique', element: <CatalogPage key="GOODIE" type="GOODIE" /> },
       { path: 'boutique/:slug', element: <ProductDetailPage key="GOODIE" type="GOODIE" /> },
       { path: 'panier', element: <PlaceholderPage title="Panier" story="US 8, US 9" /> },
-      { path: 'connexion', element: <PlaceholderPage title="Connexion" story="US 10, US 11" /> },
+      { path: 'connexion', element: <LoginPage /> },
 
-      // Parcours de commande (client connecté)
-      { path: 'commande', element: <PlaceholderPage title="Récapitulatif de commande" story="US 13" /> },
-      { path: 'commande/confirmation', element: <PlaceholderPage title="Confirmation" story="US 14" /> },
+      // Pages réservées aux clients connectés
+      {
+        element: <RequireAuth />,
+        children: [
+          // Parcours de commande
+          { path: 'commande', element: <PlaceholderPage title="Récapitulatif de commande" story="US 13" /> },
+          { path: 'commande/confirmation', element: <PlaceholderPage title="Confirmation" story="US 14" /> },
 
-      // Espace client
-      { path: 'compte', element: <Navigate to="/compte/commandes" replace /> },
-      { path: 'compte/commandes', element: <PlaceholderPage title="Mes commandes" story="Espace client" /> },
-      { path: 'compte/commandes/:id', element: <PlaceholderPage title="Détail de la commande" story="Espace client" /> },
-      { path: 'compte/favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
-      { path: 'compte/profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
+          // Espace client
+          { path: 'compte', element: <Navigate to="/compte/commandes" replace /> },
+          { path: 'compte/commandes', element: <PlaceholderPage title="Mes commandes" story="Espace client" /> },
+          { path: 'compte/commandes/:id', element: <PlaceholderPage title="Détail de la commande" story="Espace client" /> },
+          { path: 'compte/favoris', element: <PlaceholderPage title="Mes favoris" story="Espace client" /> },
+          { path: 'compte/profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
+        ],
+      },
 
       // Pages légales
       { path: 'mentions-legales', element: <LegalNoticePage /> },
@@ -48,7 +57,11 @@ const router = createBrowserRouter([
   },
   {
     path: 'admin',
-    element: <AdminLayout />,
+    element: (
+      <RequireAuth role="ADMIN">
+        <AdminLayout />
+      </RequireAuth>
+    ),
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <PlaceholderPage title="Tableau de bord" story="Administration" /> },
@@ -62,7 +75,11 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;
