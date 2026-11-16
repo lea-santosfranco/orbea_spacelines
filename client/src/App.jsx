@@ -4,6 +4,7 @@ import Layout from './components/layout/Layout.jsx';
 import AdminLayout from './components/layout/AdminLayout.jsx';
 import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import HomePage from './pages/public/HomePage.jsx';
+import CatalogPage from './pages/public/CatalogPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -15,7 +16,7 @@ const router = createBrowserRouter([
     children: [
       // Pages publiques
       { index: true, element: <HomePage /> },
-      { path: 'destinations', element: <PlaceholderPage title="Destinations" story="US 2" /> },
+      { path: 'destinations', element: <CatalogPage key="TRIP" type="TRIP" /> },
       { path: 'destinations/:slug', element: <PlaceholderPage title="Fiche voyage" story="US 6" /> },
       { path: 'boutique', element: <PlaceholderPage title="Boutique" story="US 3" /> },
       { path: 'boutique/:slug', element: <PlaceholderPage title="Fiche goodie" story="US 7" /> },

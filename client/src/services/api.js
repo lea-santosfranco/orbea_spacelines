@@ -19,7 +19,17 @@ async function request(path, options = {}) {
   return data;
 }
 
+// Construit la chaîne « ?a=1&b=2 » en ignorant les valeurs vides
+function toQueryString(params) {
+  const entries = Object.entries(params).filter(([, value]) => value !== undefined && value !== null && value !== '');
+  const query = new URLSearchParams(entries).toString();
+  return query ? `?${query}` : '';
+}
+
 export function getProducts(params = {}, options = {}) {
-  const query = new URLSearchParams(params).toString();
-  return request(`/products${query ? `?${query}` : ''}`, options);
+  return request(`/products${toQueryString(params)}`, options);
+}
+
+export function getCategories(params = {}, options = {}) {
+  return request(`/categories${toQueryString(params)}`, options);
 }
