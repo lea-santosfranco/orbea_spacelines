@@ -53,11 +53,18 @@ function CartProvider({ children }) {
     return data;
   }, []);
 
+  // Relit le panier depuis l'API (ex. après un paiement, quand le serveur l'a vidé)
+  const refresh = useCallback(async () => {
+    const data = await api.getCart();
+    setCart(data);
+    return data;
+  }, []);
+
   const isLoading = authLoading || loadedFor !== userId;
 
   const value = useMemo(
-    () => ({ cart, isLoading, addItem, updateItem, removeItem }),
-    [cart, isLoading, addItem, updateItem, removeItem],
+    () => ({ cart, isLoading, addItem, updateItem, removeItem, refresh }),
+    [cart, isLoading, addItem, updateItem, removeItem, refresh],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

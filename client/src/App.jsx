@@ -14,6 +14,8 @@ import RequireAuth from './components/auth/RequireAuth.jsx';
 import AuthProvider from './context/AuthProvider.jsx';
 import CartProvider from './context/CartProvider.jsx';
 import CartPage from './pages/public/CartPage.jsx';
+import CheckoutPage from './pages/checkout/CheckoutPage.jsx';
+import ConfirmationPage from './pages/checkout/ConfirmationPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -37,8 +39,8 @@ const router = createBrowserRouter([
         element: <RequireAuth />,
         children: [
           // Parcours de commande
-          { path: 'commande', element: <PlaceholderPage title="Récapitulatif de commande" story="US 13" /> },
-          { path: 'commande/confirmation', element: <PlaceholderPage title="Confirmation" story="US 14" /> },
+          { path: 'commande', element: <CheckoutPage /> },
+          { path: 'commande/confirmation', element: <ConfirmationPage /> },
 
           // Espace client
           { path: 'compte', element: <Navigate to="/compte/commandes" replace /> },

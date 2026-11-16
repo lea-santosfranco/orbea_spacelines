@@ -73,3 +73,13 @@ export function updateCartItem(variantId, quantity) {
 export function removeCartItem(variantId) {
   return request(`/cart/items/${variantId}`, { method: 'DELETE' });
 }
+
+// ---------- Commandes ----------
+
+export function createCheckout(data) {
+  return request('/orders/checkout', { method: 'POST', body: JSON.stringify(data) });
+}
+
+export function getOrder(id, options = {}) {
+  return request(`/orders/${id}`, options);
+}
