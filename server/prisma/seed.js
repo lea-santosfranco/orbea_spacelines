@@ -165,6 +165,7 @@ const goodies = [
 
 async function clearDatabase() {
   // Ordre inverse des dépendances, pour respecter les clés étrangères
+  await prisma.review.deleteMany();
   await prisma.favorite.deleteMany();
   await prisma.cartItem.deleteMany();
   await prisma.cart.deleteMany();
@@ -278,6 +279,7 @@ async function seedDemoOrders() {
   const goodies = variants.filter((variant) => variant.product.type === 'GOODIE');
 
   let count = 0;
+  const purchases = [];
   for (let daysAgo = 110; daysAgo >= 2; daysAgo -= 4 + Math.floor(random() * 5)) {
     const paidAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
     // On ne choisit que des variantes qui ont encore assez de stock (la base refuse un stock négatif)
@@ -335,8 +337,30 @@ async function seedDemoOrders() {
       line.variant.stock -= line.quantity;
     }
     count += 1;
+    for (const line of lines) purchases.push({ userId: customer.id, productId: line.variant.productId });
   }
-  return { orders: count, customers: demoCustomers.length };
+
+  // Quelques avis laissés par des clients sur des produits qu'ils ont réellement achetés
+  const comments = [
+    [5, 'Une expérience incroyable, l’équipage a été parfait du début à la fin.'],
+    [4, 'Très beau voyage, la préparation au décollage est un peu longue mais ça vaut le coup.'],
+    [5, 'Qualité au rendez-vous, je recommande sans hésiter.'],
+    [4, 'Conforme à la description, livraison rapide.'],
+    [3, 'Bien, mais je m’attendais à un peu plus pour ce prix.'],
+    [5, 'Le souvenir parfait pour prolonger le voyage !'],
+  ];
+  const reviewed = new Set();
+  let reviews = 0;
+  for (const purchase of purchases) {
+    const key = `${purchase.userId}-${purchase.productId}`;
+    if (reviewed.has(key) || reviews >= comments.length) continue;
+    reviewed.add(key);
+    const [rating, comment] = comments[reviews];
+    await prisma.review.create({ data: { ...purchase, rating, comment } });
+    reviews += 1;
+  }
+
+  return { orders: count, customers: demoCustomers.length, reviews };
 }
 
 async function main() {
@@ -345,7 +369,7 @@ async function main() {
   const productCount = await seedCatalog();
   const demo = await seedDemoOrders();
   console.log(
-    `Seed terminé : ${categories.length} catégories, ${productCount} produits, ${2 + demo.customers} utilisateurs, ${demo.orders} commandes de démonstration.`,
+    `Seed terminé : ${categories.length} catégories, ${productCount} produits, ${2 + demo.customers} utilisateurs, ${demo.orders} commandes et ${demo.reviews} avis de démonstration.`,
   );
 }
 

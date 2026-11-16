@@ -8,7 +8,7 @@ export const PASSWORD = 'Mot-de-passe-test-1';
 // Vide toutes les tables et remet les compteurs d'identifiants à 1
 export async function resetDatabase() {
   await prisma.$executeRawUnsafe(
-    'TRUNCATE favorites, cart_items, carts, order_items, orders, product_images, variants, products, categories, users RESTART IDENTITY CASCADE',
+    'TRUNCATE reviews, favorites, cart_items, carts, order_items, orders, product_images, variants, products, categories, users RESTART IDENTITY CASCADE',
   );
 }
 

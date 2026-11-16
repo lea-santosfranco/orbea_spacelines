@@ -34,7 +34,7 @@ export async function changePassword(user, { currentPassword, newPassword }) {
 
 // Droit d'accès et de portabilité (RGPD) : toutes les données personnelles du client, dans un format lisible (JSON)
 export async function exportData(user) {
-  const [orders, favorites] = await Promise.all([
+  const [orders, favorites, reviews] = await Promise.all([
     prisma.order.findMany({
       where: { userId: user.id },
       orderBy: { createdAt: 'asc' },
@@ -43,6 +43,10 @@ export async function exportData(user) {
     prisma.favorite.findMany({
       where: { userId: user.id },
       include: { product: { select: { name: true, slug: true } } },
+    }),
+    prisma.review.findMany({
+      where: { userId: user.id },
+      include: { product: { select: { name: true } } },
     }),
   ]);
 
@@ -83,6 +87,12 @@ export async function exportData(user) {
       productName: favorite.product.name,
       addedAt: favorite.createdAt,
     })),
+    reviews: reviews.map((review) => ({
+      productName: review.product.name,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt,
+    })),
   };
 }
 
@@ -93,6 +103,7 @@ export async function deleteAccount(user, { password }) {
 
   await prisma.$transaction([
     prisma.favorite.deleteMany({ where: { userId: user.id } }),
+    prisma.review.deleteMany({ where: { userId: user.id } }), // Un avis est un contenu personnel : il est effacé
     prisma.cart.deleteMany({ where: { userId: user.id } }),
     prisma.order.updateMany({
       where: { userId: user.id },

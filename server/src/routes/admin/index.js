@@ -4,6 +4,8 @@ import * as categories from '../../controllers/admin/categories.controller.js';
 import * as orders from '../../controllers/admin/orders.controller.js';
 import * as users from '../../controllers/admin/users.controller.js';
 import { getStats } from '../../controllers/admin/stats.controller.js';
+import { deleteReview } from '../../controllers/reviews.controller.js';
+import { reviewIdParams } from '../../validators/reviews.validator.js';
 import { adminOrderParams, listAdminOrdersQuery, updateStatusBody } from '../../validators/admin/orders.validator.js';
 import { adminUserParams, listAdminUsersQuery, userStatusBody } from '../../validators/admin/users.validator.js';
 import { statsQuery } from '../../validators/admin/stats.validator.js';
@@ -55,6 +57,9 @@ router.patch('/orders/:id/status', validate({ params: adminOrderParams, body: up
 // Utilisateurs
 router.get('/users', validate({ query: listAdminUsersQuery }), users.getUsers);
 router.patch('/users/:id/status', validate({ params: adminUserParams, body: userStatusBody }), users.patchUserStatus);
+
+// Modération des avis
+router.delete('/reviews/:id', validate({ params: reviewIdParams }), deleteReview);
 
 // Tableau de bord
 router.get('/stats', validate({ query: statsQuery }), getStats);
