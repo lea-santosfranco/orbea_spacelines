@@ -1,4 +1,5 @@
 import { prisma } from '../config/prisma.js';
+import { HttpError } from '../utils/httpError.js';
 
 const cardInclude = {
   category: { select: { name: true, slug: true } },
@@ -81,5 +82,53 @@ export async function listProducts({ type, q, category, sort, available, page, l
     page,
     limit,
     totalPages: Math.ceil(total / limit),
+  };
+}
+
+function startOfToday() {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  return today;
+}
+
+// Fiche produit complète : toutes les images et toutes les variantes actives
+export async function getProductBySlug(slug) {
+  const product = await prisma.product.findFirst({
+    where: { slug, isArchived: false },
+    include: {
+      category: { select: { name: true, slug: true } },
+      images: { orderBy: { position: 'asc' }, select: { id: true, url: true, altText: true } },
+      variants: {
+        // Variantes actives, sans les départs déjà passés
+        where: { isActive: true, OR: [{ departureDate: null }, { departureDate: { gte: startOfToday() } }] },
+        // Les classes sont triées dans l'ordre de l'énumération : Économie, Affaires, Première
+        orderBy: [{ departureDate: 'asc' }, { travelClass: 'asc' }, { id: 'asc' }],
+        select: { id: true, departureDate: true, travelClass: true, size: true, priceCents: true, stock: true },
+      },
+    },
+  });
+
+  if (!product) {
+    throw new HttpError(404, 'Produit introuvable');
+  }
+
+  const prices = product.variants.map((variant) => variant.priceCents);
+
+  return {
+    id: product.id,
+    slug: product.slug,
+    type: product.type,
+    name: product.name,
+    description: product.description,
+    durationDays: product.durationDays,
+    category: product.category,
+    images: product.images,
+    variants: product.variants.map((variant) => ({
+      ...variant,
+      // Date seule (AAAA-MM-JJ) : évite les décalages de fuseau horaire côté navigateur
+      departureDate: variant.departureDate ? variant.departureDate.toISOString().slice(0, 10) : null,
+    })),
+    minPriceCents: prices.length > 0 ? Math.min(...prices) : null,
+    isAvailable: product.variants.some((variant) => variant.stock > 0),
   };
 }
