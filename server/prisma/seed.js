@@ -1,7 +1,9 @@
 // Données de démonstration d'Orbéa Spacelines
 // Lancement : npm run db:seed (vide les tables puis les remplit)
 
+import crypto from 'node:crypto';
 import argon2 from 'argon2';
+import { variantLabel } from '../src/utils/variantLabel.js';
 import { prisma } from '../src/config/prisma.js';
 
 // ---------- Outils ----------
@@ -234,11 +236,117 @@ async function seedCatalog() {
   return products.length;
 }
 
+// ---------- Commandes de démonstration (pour le tableau de bord) ----------
+
+const demoCustomers = [
+  { firstName: 'Inès', lastName: 'Moreau', city: 'Lyon', postalCode: '69003' },
+  { firstName: 'Hugo', lastName: 'Lefèvre', city: 'Nantes', postalCode: '44000' },
+  { firstName: 'Sofia', lastName: 'Pereira', city: 'Toulouse', postalCode: '31000' },
+];
+
+// Générateur pseudo-aléatoire à graine fixe : le seed produit toujours les mêmes données
+function seededRandom(seed) {
+  let value = seed;
+  return () => {
+    value = (value * 1103515245 + 12345) % 2147483648;
+    return value / 2147483648;
+  };
+}
+
+async function seedDemoOrders() {
+  const random = seededRandom(42);
+  const pick = (list) => list[Math.floor(random() * list.length)];
+  const clientPassword = await argon2.hash(process.env.SEED_CLIENT_PASSWORD);
+
+  const customers = [await prisma.user.findUnique({ where: { email: 'client@orbea.test' } })];
+  for (const customer of demoCustomers) {
+    customers.push(
+      await prisma.user.create({
+        data: {
+          ...customer,
+          email: `${customer.firstName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')}@orbea.test`,
+          passwordHash: clientPassword,
+          address: '1 place de la Comète',
+          consentAt: new Date(),
+        },
+      }),
+    );
+  }
+
+  const variants = await prisma.variant.findMany({ where: { stock: { gt: 2 } }, include: { product: true } });
+  const trips = variants.filter((variant) => variant.product.type === 'TRIP' && variant.travelClass !== 'FIRST');
+  const goodies = variants.filter((variant) => variant.product.type === 'GOODIE');
+
+  let count = 0;
+  for (let daysAgo = 110; daysAgo >= 2; daysAgo -= 4 + Math.floor(random() * 5)) {
+    const paidAt = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
+    // On ne choisit que des variantes qui ont encore assez de stock (la base refuse un stock négatif)
+    const quantity = () => 1 + Math.floor(random() * 2);
+    const available = (list, qty) => list.filter((variant) => variant.stock >= qty);
+    const lines = [];
+    const tripQty = quantity();
+    if (random() < 0.6 && available(trips, tripQty).length) {
+      lines.push({ variant: pick(available(trips, tripQty)), quantity: tripQty });
+    }
+    const goodieQty = quantity();
+    if ((random() < 0.7 || lines.length === 0) && available(goodies, goodieQty).length) {
+      lines.push({ variant: pick(available(goodies, goodieQty)), quantity: goodieQty });
+    }
+    if (lines.length === 0) continue;
+
+    const hasGoodies = lines.some((line) => line.variant.product.type === 'GOODIE');
+    const customer = pick(customers);
+    const subtotalCents = lines.reduce((sum, line) => sum + line.variant.priceCents * line.quantity, 0);
+    // Les plus anciennes sont terminées, les plus récentes encore en cours
+    const status = daysAgo > 30 ? 'COMPLETED' : hasGoodies && daysAgo > 10 ? 'SHIPPED' : 'PAID';
+    const date = paidAt.toISOString().slice(0, 10).replaceAll('-', '');
+
+    await prisma.order.create({
+      data: {
+        userId: customer.id,
+        number: `ORB-${date}-${crypto.randomBytes(3).toString('hex').toUpperCase()}`,
+        status,
+        subtotalCents,
+        shippingCents: 0,
+        totalCents: subtotalCents,
+        paidAt,
+        createdAt: paidAt,
+        ...(hasGoodies && {
+          shippingName: `${customer.firstName} ${customer.lastName}`,
+          shippingAddress: customer.address,
+          shippingPostalCode: customer.postalCode,
+          shippingCity: customer.city,
+        }),
+        items: {
+          create: lines.map((line) => ({
+            variantId: line.variant.id,
+            productName: line.variant.product.name,
+            variantLabel: variantLabel(line.variant),
+            unitPriceCents: line.variant.priceCents,
+            quantity: line.quantity,
+          })),
+        },
+      },
+    });
+
+    // Les places et articles vendus sortent du stock, comme lors d'un vrai paiement
+    for (const line of lines) {
+      await prisma.variant.update({ where: { id: line.variant.id }, data: { stock: { decrement: line.quantity } } });
+      line.variant.stock -= line.quantity;
+    }
+    count += 1;
+  }
+  return { orders: count, customers: demoCustomers.length };
+}
+
 async function main() {
   await clearDatabase();
   await seedUsers();
   const productCount = await seedCatalog();
-  console.log(`Seed terminé : ${categories.length} catégories, ${productCount} produits, 2 utilisateurs.`);
+  const demo = await seedDemoOrders();
+  console.log(
+    `Seed terminé : ${categories.length} catégories, ${productCount} produits, ${2 + demo.customers} utilisateurs, ${demo.orders} commandes de démonstration.`,
+  );
 }
 
 main()
