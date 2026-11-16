@@ -33,3 +33,32 @@ describe('Catalogue', () => {
     await prisma.product.update({ where: { id: data.goodie.id }, data: { isArchived: false } });
   });
 });
+
+describe('Filtres et tri', () => {
+  it('filtre par classe et par prix sur la même variante, et affiche le prix de la variante retenue', async () => {
+    // La Première (450 000 €) existe mais est complète : elle reste trouvable sans « available »
+    const first = await request(app).get('/api/products?type=TRIP&travelClass=FIRST&minPrice=400000');
+    expect(first.body.total).toBe(1);
+    expect(first.body.items[0].minPriceCents).toBe(45000000);
+
+    // Aucune variante ne combine Économie ET prix ≥ 400 000 € : le produit est exclu
+    const none = await request(app).get('/api/products?type=TRIP&travelClass=ECONOMY&minPrice=400000');
+    expect(none.body.total).toBe(0);
+  });
+
+  it('filtre par période de départ et masque les complets', async () => {
+    const inRange = await request(app).get('/api/products?type=TRIP&departureFrom=2030-05-01&departureTo=2030-05-31');
+    expect(inRange.body.total).toBe(1);
+    const outOfRange = await request(app).get('/api/products?type=TRIP&departureFrom=2031-01-01');
+    expect(outOfRange.body.total).toBe(0);
+    const available = await request(app).get('/api/products?type=TRIP&travelClass=FIRST&available=true');
+    expect(available.body.total).toBe(0);
+  });
+
+  it('trie les voyages par prochain départ et refuse une fourchette incohérente', async () => {
+    const sorted = await request(app).get('/api/products?type=TRIP&sort=date');
+    expect(sorted.body.items[0].nextDepartureDate).toBe('2030-05-18');
+    await request(app).get('/api/products?minPrice=10&maxPrice=5').expect(400);
+    await request(app).get('/api/products?departureFrom=2030-13-01').expect(400);
+  });
+});

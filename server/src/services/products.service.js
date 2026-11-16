@@ -4,12 +4,24 @@ import { HttpError } from '../utils/httpError.js';
 export const cardInclude = {
   category: { select: { name: true, slug: true } },
   images: { orderBy: { position: 'asc' }, take: 1, select: { url: true, altText: true } },
-  variants: { where: { isActive: true }, select: { priceCents: true, stock: true } },
+  variants: { where: { isActive: true }, select: { priceCents: true, stock: true, departureDate: true } },
 };
+
+function startOfToday() {
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  return today;
+}
 
 // Transforme un produit de la base en objet prêt pour une carte du catalogue
 export function toProductCard(product) {
   const prices = product.variants.map((variant) => variant.priceCents);
+  const today = startOfToday();
+  // Prochain départ encore réservable (voyages uniquement)
+  const upcoming = product.variants
+    .filter((variant) => variant.departureDate && variant.departureDate >= today && variant.stock > 0)
+    .map((variant) => variant.departureDate)
+    .sort((a, b) => a - b);
 
   return {
     id: product.id,
@@ -23,58 +35,90 @@ export function toProductCard(product) {
     // Permet d'afficher « À partir de » seulement quand les variantes n'ont pas toutes le même prix
     hasPriceRange: new Set(prices).size > 1,
     isAvailable: product.variants.some((variant) => variant.stock > 0),
+    nextDepartureDate: upcoming[0] ? upcoming[0].toISOString().slice(0, 10) : null,
   };
 }
 
-// Construit le filtre Prisma à partir des critères de recherche
-function buildWhere({ type, q, category, available }) {
-  return {
+// Construit le filtre Prisma (where) et les variantes à charger (include) à partir des critères de recherche.
+// Les critères qui portent sur les variantes (prix, classe, dates, disponibilité) sont réunis dans un seul
+// « some » : le produit est retenu s'il a AU MOINS UNE variante qui respecte TOUS ces critères à la fois.
+function buildWhere({ type, q, category, available, minPrice, maxPrice, travelClass, departureFrom, departureTo }) {
+  const variantFilter = {
+    isActive: true,
+    ...(available && { stock: { gt: 0 } }),
+    ...((minPrice !== undefined || maxPrice !== undefined) && {
+      priceCents: {
+        ...(minPrice !== undefined && { gte: minPrice * 100 }),
+        ...(maxPrice !== undefined && { lte: maxPrice * 100 }),
+      },
+    }),
+    ...(travelClass && { travelClass }),
+    ...((departureFrom || departureTo) && {
+      departureDate: {
+        ...(departureFrom && { gte: new Date(departureFrom) }),
+        ...(departureTo && { lte: new Date(departureTo) }),
+      },
+    }),
+  };
+  const hasVariantCriteria = Object.keys(variantFilter).length > 1;
+
+  const where = {
     isArchived: false,
     ...(type && { type }),
     ...(category && { category: { slug: category } }),
     ...(q && {
-      OR: [
-        { name: { contains: q, mode: 'insensitive' } },
-        { description: { contains: q, mode: 'insensitive' } },
-      ],
+      OR: [{ name: { contains: q, mode: 'insensitive' } }, { description: { contains: q, mode: 'insensitive' } }],
     }),
-    ...(available && { variants: { some: { isActive: true, stock: { gt: 0 } } } }),
+    ...(hasVariantCriteria && { variants: { some: variantFilter } }),
   };
+
+  // Les cartes sont calculées sur les seules variantes qui correspondent (ex. prix de la classe Première filtrée)
+  const include = { ...cardInclude, variants: { ...cardInclude.variants, where: variantFilter } };
+  return { where, include };
 }
 
-// Les produits sans prix (aucune variante active) sont toujours placés en fin de liste
-function compareByPrice(direction) {
+// Tri en mémoire sur une valeur calculée ; les produits sans valeur (null) sont toujours placés en fin de liste
+function compareBy(key, direction) {
   return (a, b) => {
-    if (a.minPriceCents === null) return 1;
-    if (b.minPriceCents === null) return -1;
-    return direction === 'asc' ? a.minPriceCents - b.minPriceCents : b.minPriceCents - a.minPriceCents;
+    if (a[key] === null) return 1;
+    if (b[key] === null) return -1;
+    const order = a[key] < b[key] ? -1 : a[key] > b[key] ? 1 : 0;
+    return direction === 'asc' ? order : -order;
   };
 }
 
-export async function listProducts({ type, q, category, sort, available, page, limit }) {
-  const where = buildWhere({ type, q, category, available });
+const MEMORY_SORTS = {
+  price_asc: compareBy('minPriceCents', 'asc'),
+  price_desc: compareBy('minPriceCents', 'desc'),
+  date: compareBy('nextDepartureDate', 'asc'), // voyages : départ le plus proche d'abord
+};
+
+export async function listProducts({ sort, page, limit, ...filters }) {
+  const { where, include } = buildWhere(filters);
   const total = await prisma.product.count({ where });
 
-  let items;
+  // Tri simple : la base fait le tri et la pagination.
+  // « Nouveautés » (tri par date d'un goodie) = date de création, aussi gérée par la base.
+  const databaseOrder =
+    sort === 'default' ? { id: 'asc' } : sort === 'date' && filters.type === 'GOODIE' ? { createdAt: 'desc' } : null;
 
-  if (sort === 'default') {
-    // Tri simple : la base fait la pagination
+  let items;
+  if (databaseOrder) {
     const products = await prisma.product.findMany({
       where,
-      orderBy: { id: 'asc' },
+      orderBy: databaseOrder,
       skip: (page - 1) * limit,
       take: limit,
-      include: cardInclude,
+      include,
     });
     items = products.map(toProductCard);
   } else {
-    // Le prix minimum est calculé sur les variantes : Prisma ne sait pas trier dessus.
+    // Prix minimum et prochain départ sont calculés sur les variantes : Prisma ne sait pas trier dessus.
     // Le catalogue étant petit (quelques dizaines de produits), on trie en mémoire puis on découpe la page.
-    const products = await prisma.product.findMany({ where, include: cardInclude });
-    const direction = sort === 'price_asc' ? 'asc' : 'desc';
+    const products = await prisma.product.findMany({ where, include });
     items = products
       .map(toProductCard)
-      .sort(compareByPrice(direction))
+      .sort(MEMORY_SORTS[sort])
       .slice((page - 1) * limit, page * limit);
   }
 
@@ -85,12 +129,6 @@ export async function listProducts({ type, q, category, sort, available, page, l
     limit,
     totalPages: Math.ceil(total / limit),
   };
-}
-
-function startOfToday() {
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-  return today;
 }
 
 // Fiche produit complète : toutes les images et toutes les variantes actives
