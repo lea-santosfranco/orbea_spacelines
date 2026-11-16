@@ -101,7 +101,8 @@ function ProductDetail({ slug, type }) {
 
           {product.minPriceCents !== null && (
             <p className="mt-4 text-brume">
-              À partir de <span className="text-2xl font-bold text-neige">{formatPrice(product.minPriceCents)}</span>
+              {product.hasPriceRange && 'À partir de '}
+              <span className="text-2xl font-bold text-neige">{formatPrice(product.minPriceCents)}</span>
             </p>
           )}
 

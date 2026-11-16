@@ -20,6 +20,8 @@ function toProductCard(product) {
     category: product.category,
     image: product.images[0] ?? null,
     minPriceCents: prices.length > 0 ? Math.min(...prices) : null,
+    // Permet d'afficher « À partir de » seulement quand les variantes n'ont pas toutes le même prix
+    hasPriceRange: new Set(prices).size > 1,
     isAvailable: product.variants.some((variant) => variant.stock > 0),
   };
 }
@@ -129,6 +131,7 @@ export async function getProductBySlug(slug) {
       departureDate: variant.departureDate ? variant.departureDate.toISOString().slice(0, 10) : null,
     })),
     minPriceCents: prices.length > 0 ? Math.min(...prices) : null,
+    hasPriceRange: new Set(prices).size > 1,
     isAvailable: product.variants.some((variant) => variant.stock > 0),
   };
 }

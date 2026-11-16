@@ -31,7 +31,7 @@ function ProductCard({ product }) {
         <div className="mt-auto flex items-end justify-between gap-4 pt-6">
           {product.minPriceCents !== null && (
             <p className="text-brume">
-              <span className="text-sm">À partir de</span>{' '}
+              {product.hasPriceRange && <span className="text-sm">À partir de </span>}
               <span className="text-lg font-bold text-neige">{formatPrice(product.minPriceCents)}</span>
             </p>
           )}
