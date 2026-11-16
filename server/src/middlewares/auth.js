@@ -1,7 +1,6 @@
 import { getUserFromToken } from '../services/auth.service.js';
 import { HttpError } from '../utils/httpError.js';
-
-export const AUTH_COOKIE = 'orbea_token';
+import { AUTH_COOKIE } from '../utils/cookies.js';
 
 // Exige un utilisateur connecté : place l'utilisateur dans req.user, sinon 401
 export async function requireAuth(req, res, next) {
@@ -24,4 +23,11 @@ export function requireRole(role) {
     }
     next();
   };
+}
+
+// Connexion facultative : renseigne req.user si un jeton valide est présent, sans bloquer les visiteurs
+export async function optionalAuth(req, res, next) {
+  const token = req.cookies?.[AUTH_COOKIE];
+  req.user = token ? await getUserFromToken(token) : null;
+  next();
 }
