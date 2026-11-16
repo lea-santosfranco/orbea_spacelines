@@ -6,6 +6,9 @@ import PlaceholderPage from './pages/PlaceholderPage.jsx';
 import HomePage from './pages/public/HomePage.jsx';
 import CatalogPage from './pages/public/CatalogPage.jsx';
 import ProductDetailPage from './pages/public/ProductDetailPage.jsx';
+import LegalNoticePage from './pages/legal/LegalNoticePage.jsx';
+import PrivacyPage from './pages/legal/PrivacyPage.jsx';
+import TermsPage from './pages/legal/TermsPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import ErrorPage from './pages/ErrorPage.jsx';
 
@@ -36,9 +39,9 @@ const router = createBrowserRouter([
       { path: 'compte/profil', element: <PlaceholderPage title="Mon profil" story="Espace client" /> },
 
       // Pages légales
-      { path: 'mentions-legales', element: <PlaceholderPage title="Mentions légales" story="US 12" /> },
-      { path: 'confidentialite', element: <PlaceholderPage title="Politique de confidentialité" story="US 12" /> },
-      { path: 'cgv', element: <PlaceholderPage title="Conditions générales de vente" story="US 12" /> },
+      { path: 'mentions-legales', element: <LegalNoticePage /> },
+      { path: 'confidentialite', element: <PrivacyPage /> },
+      { path: 'cgv', element: <TermsPage /> },
 
       { path: '*', element: <NotFoundPage /> },
     ],
