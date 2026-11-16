@@ -33,3 +33,7 @@ export function getProducts(params = {}, options = {}) {
 export function getCategories(params = {}, options = {}) {
   return request(`/categories${toQueryString(params)}`, options);
 }
+
+export function getProduct(slug, options = {}) {
+  return request(`/products/${encodeURIComponent(slug)}`, options);
+}
