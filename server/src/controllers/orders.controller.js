@@ -1,11 +1,15 @@
 import { config } from '../config/env.js';
 import { stripe } from '../config/stripe.js';
-import { createCheckout, getOrderForUser, handleStripeEvent } from '../services/orders.service.js';
+import { createCheckout, getOrderForUser, handleStripeEvent, listOrdersForUser } from '../services/orders.service.js';
 import { HttpError } from '../utils/httpError.js';
 
 export async function postCheckout(req, res) {
   const result = await createCheckout(req.user, req.validated.body);
   res.status(201).json(result);
+}
+
+export async function getOrders(req, res) {
+  res.json(await listOrdersForUser(req.user, req.validated.query));
 }
 
 export async function getOrder(req, res) {

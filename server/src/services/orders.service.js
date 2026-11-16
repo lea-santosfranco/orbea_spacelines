@@ -238,3 +238,35 @@ export async function getOrderForUser(user, orderId) {
 
   return toPublicOrder(order);
 }
+
+// Historique du client : seules les commandes réellement payées (les tentatives de paiement abandonnées n'en sont pas)
+export async function listOrdersForUser(user, { page, limit }) {
+  const where = { userId: user.id, paidAt: { not: null } };
+
+  const [orders, total] = await prisma.$transaction([
+    prisma.order.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: { items: { select: { productName: true, quantity: true } } },
+    }),
+    prisma.order.count({ where }),
+  ]);
+
+  return {
+    items: orders.map((order) => ({
+      id: order.id,
+      number: order.number,
+      status: order.status,
+      totalCents: order.totalCents,
+      createdAt: order.createdAt,
+      itemCount: order.items.reduce((sum, item) => sum + item.quantity, 0),
+      productNames: [...new Set(order.items.map((item) => item.productName))],
+    })),
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  };
+}
