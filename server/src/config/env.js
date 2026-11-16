@@ -18,4 +18,7 @@ export const config = {
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   jwtSecret: process.env.JWT_SECRET || 'dev-secret-orbea-a-ne-pas-utiliser-en-production',
   jwtExpiresIn: '7d',
+  // Paiement : clé secrète Stripe (mode test) et secret de signature des webhooks (facultatif en local)
+  stripeSecretKey: process.env.STRIPE_SECRET_KEY || null,
+  stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || null,
 };

@@ -16,6 +16,9 @@ export function toPublicUser(user) {
     firstName: user.firstName,
     lastName: user.lastName,
     role: user.role,
+    address: user.address,
+    postalCode: user.postalCode,
+    city: user.city,
   };
 }
 
